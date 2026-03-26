@@ -1,0 +1,109 @@
+-- [[ MOBILE KILL AURA HUB V1 ]] --
+local Player = game.Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui")
+local RunService = game:GetService("RunService")
+
+-- Global Settings
+_G.AuraEnabled = false
+local Range = 12 
+local KillDelay = 0.1
+
+-- 1. UI CREATION
+local ScreenGui = Instance.new("ScreenGui", CoreGui)
+ScreenGui.Name = "MobileAuraHub"
+
+-- Main Menu Frame
+local MainFrame = Instance.new("Frame", ScreenGui)
+MainFrame.Size = UDim2.new(0, 160, 0, 120)
+MainFrame.Position = UDim2.new(0.5, -80, 0.4, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BorderSizePixel = 0
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+local Corner = Instance.new("UICorner", MainFrame)
+Corner.CornerRadius = URadius.new(0, 12)
+
+-- Title
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.Text = "Aura Hub Mobile"
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.BackgroundTransparency = 1
+Title.Font = Enum.Font.GothamBold
+
+-- Kill Aura Toggle Button
+local AuraBtn = Instance.new("TextButton", MainFrame)
+AuraBtn.Size = UDim2.new(0, 140, 0, 35)
+AuraBtn.Position = UDim2.new(0, 10, 0, 40)
+AuraBtn.Text = "Aura: OFF"
+AuraBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+AuraBtn.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", AuraBtn)
+
+-- Close Button
+local CloseBtn = Instance.new("TextButton", MainFrame)
+CloseBtn.Size = UDim2.new(0, 140, 0, 25)
+CloseBtn.Position = UDim2.new(0, 10, 0, 85)
+CloseBtn.Text = "Minimize"
+CloseBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+CloseBtn.TextColor3 = Color3.new(1, 1, 1)
+Instance.new("UICorner", CloseBtn)
+
+-- Small "OPEN" Button (Hidden at first)
+local OpenBtn = Instance.new("TextButton", ScreenGui)
+OpenBtn.Size = UDim2.new(0, 70, 0, 30)
+OpenBtn.Position = UDim2.new(0, 10, 0.5, 0)
+OpenBtn.Text = "OPEN"
+OpenBtn.Visible = false
+OpenBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+OpenBtn.TextColor3 = Color3.new(1, 1, 1)
+OpenBtn.Draggable = true
+Instance.new("UICorner", OpenBtn)
+
+-- 2. BUTTON LOGIC
+AuraBtn.MouseButton1Click:Connect(function()
+    _G.AuraEnabled = not _G.AuraEnabled
+    AuraBtn.Text = _G.AuraEnabled and "Aura: ON" or "Aura: OFF"
+    AuraBtn.BackgroundColor3 = _G.AuraEnabled and Color3.fromRGB(50, 200, 50) or Color3.fromRGB(200, 50, 50)
+end)
+
+CloseBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+    OpenBtn.Visible = true
+end)
+
+OpenBtn.MouseButton1Click:Connect(function()
+    MainFrame.Visible = true
+    OpenBtn.Visible = false
+end)
+
+-- 3. THE KILL AURA LOOP (Optimized for Mobile)
+task.spawn(function()
+    while task.wait(KillDelay) do
+        if _G.AuraEnabled then
+            pcall(function()
+                local Char = Player.Character
+                local HumRP = Char:FindFirstChild("HumanoidRootPart")
+                local Tool = Char:FindFirstChildOfClass("Tool")
+
+                if Tool and HumRP then
+                    for _, v in pairs(game.Players:GetPlayers()) do
+                        if v ~= Player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                            local EnemyRP = v.Character.HumanoidRootPart
+                            local Distance = (HumRP.Position - EnemyRP.Position).Magnitude
+                            
+                            if Distance <= Range and v.Character.Humanoid.Health > 0 then
+                                local Handle = Tool:FindFirstChild("Handle") or Tool:FindFirstChildOfClass("Part")
+                                if Handle then
+                                    firetouchinterest(EnemyRP, Handle, 0)
+                                    firetouchinterest(EnemyRP, Handle, 1)
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
