@@ -1,71 +1,80 @@
--- [[ MOBILE KILL AURA HUB V1 ]] --
+-- [[ ADAM HUB V2 - MOBILE OPTIMIZED ]] --
 local Player = game.Players.LocalPlayer
 local CoreGui = game:GetService("CoreGui")
-local RunService = game:GetService("RunService")
 
--- Global Settings
+-- Setting Default
 _G.AuraEnabled = false
-local Range = 12 
-local KillDelay = 0.1
+local Range = 18
+local KillDelay = 0.15
 
--- 1. UI CREATION
+-- 1. SETUP UI
 local ScreenGui = Instance.new("ScreenGui", CoreGui)
-ScreenGui.Name = "MobileAuraHub"
+ScreenGui.Name = "AdamHubMobile"
 
--- Main Menu Frame
+-- Frame Utama
 local MainFrame = Instance.new("Frame", ScreenGui)
-MainFrame.Size = UDim2.new(0, 160, 0, 120)
-MainFrame.Position = UDim2.new(0.5, -80, 0.4, 0)
+MainFrame.Size = UDim2.new(0, 180, 0, 150)
+MainFrame.Position = UDim2.new(0.5, -90, 0.4, 0)
 MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
-MainFrame.Draggable = true
+MainFrame.Draggable = true -- Boleh tarik guna jari
 
 local Corner = Instance.new("UICorner", MainFrame)
 Corner.CornerRadius = URadius.new(0, 12)
 
--- Title
+-- Tajuk Menu
 local Title = Instance.new("TextLabel", MainFrame)
-Title.Size = UDim2.new(1, 0, 0, 30)
-Title.Text = "Aura Hub Mobile"
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.Text = "ADAM HUB V2"
 Title.TextColor3 = Color3.new(1, 1, 1)
 Title.BackgroundTransparency = 1
 Title.Font = Enum.Font.GothamBold
+Title.TextSize = 14
 
--- Kill Aura Toggle Button
+-- Butang Kill Aura
 local AuraBtn = Instance.new("TextButton", MainFrame)
-AuraBtn.Size = UDim2.new(0, 140, 0, 35)
-AuraBtn.Position = UDim2.new(0, 10, 0, 40)
-AuraBtn.Text = "Aura: OFF"
-AuraBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+AuraBtn.Size = UDim2.new(0, 160, 0, 45)
+AuraBtn.Position = UDim2.new(0, 10, 0, 45)
+AuraBtn.Text = "Kill Aura: OFF"
+AuraBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
 AuraBtn.TextColor3 = Color3.new(1, 1, 1)
+AuraBtn.Font = Enum.Font.GothamSemibold
+AuraBtn.TextSize = 14
 Instance.new("UICorner", AuraBtn)
 
--- Close Button
+-- Butang Tutup (Minimize)
 local CloseBtn = Instance.new("TextButton", MainFrame)
-CloseBtn.Size = UDim2.new(0, 140, 0, 25)
-CloseBtn.Position = UDim2.new(0, 10, 0, 85)
-CloseBtn.Text = "Minimize"
-CloseBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-CloseBtn.TextColor3 = Color3.new(1, 1, 1)
+CloseBtn.Size = UDim2.new(0, 160, 0, 35)
+CloseBtn.Position = UDim2.new(0, 10, 0, 100)
+CloseBtn.Text = "Kecilkan Menu"
+CloseBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+CloseBtn.TextColor3 = Color3.new(0.8, 0.8, 0.8)
+CloseBtn.Font = Enum.Font.Gotham
+CloseBtn.TextSize = 12
 Instance.new("UICorner", CloseBtn)
 
--- Small "OPEN" Button (Hidden at first)
+-- Butang "BUKA" (Floating Button)
 local OpenBtn = Instance.new("TextButton", ScreenGui)
-OpenBtn.Size = UDim2.new(0, 70, 0, 30)
-OpenBtn.Position = UDim2.new(0, 10, 0.5, 0)
-OpenBtn.Text = "OPEN"
+OpenBtn.Size = UDim2.new(0, 60, 0, 30)
+OpenBtn.Position = UDim2.new(0, 5, 0.5, 0)
+OpenBtn.Text = "BUKA"
 OpenBtn.Visible = false
-OpenBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+OpenBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 OpenBtn.TextColor3 = Color3.new(1, 1, 1)
 OpenBtn.Draggable = true
 Instance.new("UICorner", OpenBtn)
 
--- 2. BUTTON LOGIC
+-- 2. LOGIK BUTANG UI
 AuraBtn.MouseButton1Click:Connect(function()
     _G.AuraEnabled = not _G.AuraEnabled
-    AuraBtn.Text = _G.AuraEnabled and "Aura: ON" or "Aura: OFF"
-    AuraBtn.BackgroundColor3 = _G.AuraEnabled and Color3.fromRGB(50, 200, 50) or Color3.fromRGB(200, 50, 50)
+    if _G.AuraEnabled then
+        AuraBtn.Text = "Kill Aura: ON"
+        AuraBtn.BackgroundColor3 = Color3.fromRGB(40, 180, 40)
+    else
+        AuraBtn.Text = "Kill Aura: OFF"
+        AuraBtn.BackgroundColor3 = Color3.fromRGB(180, 40, 40)
+    end
 end)
 
 CloseBtn.MouseButton1Click:Connect(function()
@@ -78,26 +87,29 @@ OpenBtn.MouseButton1Click:Connect(function()
     OpenBtn.Visible = false
 end)
 
--- 3. THE KILL AURA LOOP (Optimized for Mobile)
+-- 3. LOGIK KILL AURA (LOOP)
 task.spawn(function()
     while task.wait(KillDelay) do
         if _G.AuraEnabled then
             pcall(function()
                 local Char = Player.Character
-                local HumRP = Char:FindFirstChild("HumanoidRootPart")
-                local Tool = Char:FindFirstChildOfClass("Tool")
-
-                if Tool and HumRP then
-                    for _, v in pairs(game.Players:GetPlayers()) do
-                        if v ~= Player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                            local EnemyRP = v.Character.HumanoidRootPart
-                            local Distance = (HumRP.Position - EnemyRP.Position).Magnitude
-                            
-                            if Distance <= Range and v.Character.Humanoid.Health > 0 then
-                                local Handle = Tool:FindFirstChild("Handle") or Tool:FindFirstChildOfClass("Part")
-                                if Handle then
-                                    firetouchinterest(EnemyRP, Handle, 0)
-                                    firetouchinterest(EnemyRP, Handle, 1)
+                local Tool = Char and Char:FindFirstChildOfClass("Tool")
+                
+                if Tool and Char:FindFirstChild("HumanoidRootPart") then
+                    -- Cari bahagian pedang (Mana-mana Part yang ada dalam Tool)
+                    local WeaponPart = Tool:FindFirstChild("Handle") or Tool:FindFirstChildOfClass("Part") or Tool:FindFirstChildOfClass("MeshPart")
+                    
+                    if WeaponPart then
+                        for _, v in pairs(game.Players:GetPlayers()) do
+                            if v ~= Player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                                local EnemyPart = v.Character.HumanoidRootPart
+                                local Distance = (Char.HumanoidRootPart.Position - EnemyPart.Position).Magnitude
+                                
+                                if Distance <= Range and v.Character.Humanoid.Health > 0 then
+                                    -- Paksa "Sentuhan" Pedang ke Badan Musuh
+                                    firetouchinterest(EnemyPart, WeaponPart, 0)
+                                    task.wait(0.01)
+                                    firetouchinterest(EnemyPart, WeaponPart, 1)
                                 end
                             end
                         end
